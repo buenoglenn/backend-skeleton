@@ -1,0 +1,92 @@
+{
+	"id": "bc2ced35-cdca-e4c2-e40c-ec9e0df67847",
+	"name": "CBA GSD",
+	"description": "",
+	"order": [
+		"71d1d493-c1d8-73c7-94c1-e2c564f682e9",
+		"60b84f12-522f-9f40-210e-e24c6a7f5020",
+		"989852f0-7d62-ef9c-9be3-f92413cdc339"
+	],
+	"folders": [],
+	"folders_order": [],
+	"timestamp": 1515066239164,
+	"owner": "459814",
+	"public": false,
+	"requests": [
+		{
+			"id": "60b84f12-522f-9f40-210e-e24c6a7f5020",
+			"headers": "",
+			"headerData": [],
+			"url": "{{CBA}}/users/1",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": null,
+			"dataMode": "params",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1515413010113,
+			"name": "Retrieve User",
+			"description": "",
+			"collectionId": "bc2ced35-cdca-e4c2-e40c-ec9e0df67847",
+			"responses": []
+		},
+		{
+			"id": "71d1d493-c1d8-73c7-94c1-e2c564f682e9",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{CBA}}/register",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "POST",
+			"collectionId": "bc2ced35-cdca-e4c2-e40c-ec9e0df67847",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Register User",
+			"description": "Register User",
+			"descriptionFormat": "html",
+			"time": 1515066246100,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{  \r\n   \"dob\":\"2017-11-09\",\r\n   \"email\":\"glenn.dal.bueno@hpe.com\",\r\n   \"firstName\":\"Glenn\",\r\n   \"lastName\":\"Bueno\",\r\n   \"gender\":\"M\",\r\n   \"username\":\"admin\",\r\n   \"password\":\"admin\"\r\n}"
+		},
+		{
+			"id": "989852f0-7d62-ef9c-9be3-f92413cdc339",
+			"headers": "",
+			"headerData": [],
+			"url": "{{CBA}}/users",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "bc2ced35-cdca-e4c2-e40c-ec9e0df67847",
+			"data": null,
+			"dataMode": "params",
+			"name": "Retrieve All Users",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1515413948901,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		}
+	]
+}

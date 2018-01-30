@@ -14,6 +14,7 @@
 const _ = require("lodash");
 const co = require("co");
 const config = require("config");
+const Mustache = require('mustache');
 
 const errors = require("../helpers/errors");
 const jwt = require("../helpers/jwt");
@@ -32,9 +33,7 @@ const User = models.User;
  */
 function* register(auth, params, entity) {
     const existingUser = yield User.count({
-        where: {
-            username: entity.username
-        }
+        where: { username: entity.username }
     });
 
     if (existingUser > 0) {
@@ -133,10 +132,95 @@ function* login(auth, params, entity) {
     };
 }
 
+/**
+ * POST: /users/refreshtoken
+ * Validate the access token and issue a new access token, non-anonymous
+ *
+ * @param auth the authorized user
+ * @param params the parameters for the method
+ */
+function* refreshToken(auth, params, entity) {
+    params = _.mapValues(params, function (v) { return v.value; });
+    const accessToken = jwt.refresh(auth.token, config.jwt.SECRET, {
+        expiresIn: config.jwt.EXPIRATION_TIME
+    });
+
+    return {
+        accessToken: accessToken,
+        refreshToken: auth.token
+    };
+}
+
+/**
+ * POST: /users/changeforgotpassword
+ * Set a new password for a user, the implementation must verify that the reset password token is valid. anonymous
+ *
+ * @param auth the authorized user
+ * @param params the parameters for the method
+ */
+function* createNewPassword(auth, params, entity) {
+    params = _.mapValues(params, function (v) { return v.value; });
+    return sequelize.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE },
+        co.wrap(function* (t) {
+            const token = entity.token;
+            const password = entity.password;
+            const claims = jwt.decode(token, config.JWT_SECRET);
+            const userId = claims.userId;
+
+            var user = yield User.findById(userId);
+            if (!user) throw new errors.BadRequest("Invalid token");
+
+            user.set("password", yield utils.hashString(password, 4));
+            var milliseconds = moment.utc().valueOf();
+            user.set("updatedBy", "system");
+            user.set("updatedAt", milliseconds);
+            yield user.save({ transaction: t });
+        })
+    ).catch(function (err) {
+        throw err;
+    });
+}
+
+/**
+ * POST: /users/forgotpassword
+ * Send forgot password email to registered email address, the implementation should validate that a user is registered with the specified email address, anonymous
+ *
+ * @param auth the authorized user
+ * @param params the parameters for the method
+ */
+function* forgotPassword(auth, params, entity) {
+    params = _.mapValues(params, function (v) { return v.value; });
+    return sequelize.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE },
+        co.wrap(function* (t) {
+            const username = entity.username;
+            var user = yield User.findOne({
+                where: { username: username }
+            });
+
+            const payload = { userId: user.id };
+            const accessToken = jwt.create(payload, config.jwt.SECRET, {
+                expiresIn: config.jwt.EXPIRATION_TIME
+            });
+            user.resetPasswordToken = accessToken;
+            user.save({ transaction: t });
+
+            const txt = config.resetpassword.url;
+            const body = Mustache.render(txt, { token: accessToken });
+            console.log('###### Refresh #####');
+            console.log(body);
+        })
+    ).catch(function (err) {
+        throw err;
+    });
+}
+
 module.exports = {
     register,
     retrieveUser,
     retrieveAllUsers,
     updateUser,
-    login
+    login,
+    refreshToken,
+    forgotPassword,
+    createNewPassword
 };

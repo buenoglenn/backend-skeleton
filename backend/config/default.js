@@ -16,5 +16,8 @@ module.exports = {
     role: {
         system: 'SYSTEM',
         user: 'user'
+    },
+    resetpassword: {
+        url: "resetpassword?token={{token}}"
     }
 };

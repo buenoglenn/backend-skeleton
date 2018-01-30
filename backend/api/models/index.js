@@ -27,5 +27,7 @@ const UserFunction = require('./users');
 const User = UserFunction(sequelize, Sequelize.DataTypes);
 
 module.exports = {
-    User
+    User,
+    sequelize,
+    Sequelize
 };

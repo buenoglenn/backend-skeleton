@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: e-magsasaka
+  title: AgriViz
 # during dev, should point to your local machine
 host: api.ema.com
 # basePath prefixes all resource paths 
@@ -110,7 +110,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /register:
+  /users/register:
     x-swagger-router-controller: UserController
     post:
       description: "Registers a user"
@@ -158,6 +158,62 @@ paths:
           description: "Invalid Request"
           schema:
             $ref: "#/definitions/ErrorMessage"
+  /users/forgotpassword:
+    x-swagger-router-controller: UserController
+    post:
+      description: "Send forgot password email to registered email address, the implementation should validate that a user is registered with the specified email address, anonymous"
+      operationId: forgotPassword
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: "change password request payload"
+          required: true
+          schema:
+            $ref: "#/definitions/ForgotPasswordReq"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "the validation failed, client request is invalid"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        "404":
+          description: "user not found with the specified email"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+  /users/refreshtoken:
+    x-swagger-router-controller: UserController
+    post:
+      description: "Validate the access token and issue a new access token, non-anonymous"
+      operationId: refreshToken
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Bearer access token in format Bearer {{accessToken}}"
+          required: true
+          type: string
+          format: string
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/LoginRes"
+        "400":  
+          description: "the validation failed, client request is invalid"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        "401":
+          description: "access token is not valid"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
   /swagger:
     x-swagger-pipe: swagger_raw
 ######################
@@ -168,11 +224,7 @@ definitions:
       type: object
       required:
         - message
-        - code
       properties:
-        code:
-          type: string
-          description: "Error Co"
         message:
           type: string
           description: "Error description"
@@ -255,4 +307,36 @@ definitions:
       refreshToken:
         type: string
         description: "The Refresh Token that can be used to obtain a new access token in case of remember me"
+  ForgotPasswordReq:
+    type: object
+    required:
+      - username
+    properties:
+      username:
+        type: string
+        description: "the user's email address to send the forgot password email"
+  ChangeForgotPasswordReq:
+    type: object
+    required:
+      - password
+      - token
+    properties:
+      password:
+        type: string
+        description: "the new password"
+      token:
+        type: string
+        description: "the rest password token"
+  LoginRes:
+    type: object
+    required:
+      - accessToken
+      - refreshToken
+    properties:
+      accessToken:
+        type: string
+        description: "the access token that can be used as Authorization header"
+      refreshToken:
+        type: string
+        description: "the refresh token that can be used to obtain a new access token in case of remember me"
 
